@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CorpFit — The Catalogue</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://images.unsplash.com">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-mount"></span>
+      <span class="nav-logo-text">CORP<span>FIT</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="catalogue.html" class="active">Catalogue</a></li>
+      <li><a href="index.html#story">Heritage</a></li>
+      <li><a href="index.html#craft">Craft</a></li>
+    </ul>
+    <a href="checkout.html" class="nav-cart">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/>
+        <path d="M6 6L4 2H2"/>
+      </svg>
+      Checkout
+      <span class="cart-count">0</span>
+    </a>
+  </nav>
+
+  <section class="cat-hero">
+    <div class="section-eyebrow">The Complete Catalogue</div>
+    <h1>The <em style="font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--gold);">Collection.</em></h1>
+    <p>Twelve garments. Two lines. One uncompromising standard.</p>
+  </section>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">All Pieces</button>
+    <button class="filter-btn" data-filter="men">For Him</button>
+    <button class="filter-btn" data-filter="women">For Her</button>
+  </div>
+
+  <section class="products">
+    <div class="product-grid" id="productGrid"></div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <div class="nav-logo">
+          <span class="logo-mount"></span>
+          <span class="nav-logo-text">CORP<span>FIT</span></span>
+        </div>
+        <p class="footer-brand-text">Corporate attire for those who treat dressing as a discipline.</p>
+      </div>
+      <div>
+        <h5>Atelier</h5>
+        <ul>
+          <li><a href="catalogue.html?cat=men">For Him</a></li>
+          <li><a href="catalogue.html?cat=women">For Her</a></li>
+          <li>Bespoke</li>
+        </ul>
+      </div>
+      <div>
+        <h5>The House</h5>
+        <ul>
+          <li>Heritage</li>
+          <li>Craftsmanship</li>
+          <li>Journal</li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li>Chennai · Mumbai</li>
+          <li>concierge@corpfit.in</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">© MMXXV CORPFIT — All Rights Reserved</div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    function renderProducts(filter = 'all') {
+      const grid = document.getElementById('productGrid');
+      const list = filter === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.cat === filter);
+
+      grid.innerHTML = list.map((p, i) => `
+        <article class="product-card" data-cat="${p.cat}" data-reveal data-reveal-delay="${(i % 3) + 1}">
+          <div class="product-image">
+            ${p.tag ? `<span class="product-tag">${p.tag}</span>` : ''}
+            <span class="product-cat-label">${p.cat === 'men' ? 'For Him' : 'For Her'}</span>
+            <img src="${p.img}" alt="${p.name}" loading="lazy">
+            <div class="product-quick"><span>View Details</span></div>
+          </div>
+          <div class="product-info">
+            <div class="product-cat">${p.type}</div>
+            <h3 class="product-name">${p.name}</h3>
+            <p class="product-desc">${p.desc}</p>
+            <div class="product-bottom">
+              <div class="product-price">${formatPrice(p.price)} <small>INR</small></div>
+              <button class="add-btn" data-id="${p.id}">Add</button>
+            </div>
+          </div>
+        </article>
+      `).join('');
+
+      // Re-init scroll reveal for newly added cards
+      requestAnimationFrame(() => {
+        const newEls = document.querySelectorAll('.product-card[data-reveal]:not(.revealed)');
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach(e => {
+            if (e.isIntersecting) {
+              e.target.classList.add('revealed');
+              io.unobserve(e.target);
+            }
+          });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        newEls.forEach(el => io.observe(el));
+        if (window.rebindImageFallbacks) window.rebindImageFallbacks();
+      });
+
+      // bind add buttons
+      document.querySelectorAll('.add-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          e.preventDefault();
+          const id = btn.dataset.id;
+          addToCart(id);
+          btn.textContent = 'Added ✓';
+          btn.classList.add('added');
+          setTimeout(() => {
+            btn.textContent = 'Add';
+            btn.classList.remove('added');
+          }, 1800);
+        });
+      });
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const initial = params.get('cat') || 'all';
+    renderProducts(initial);
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.filter === initial);
+    });
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderProducts(btn.dataset.filter);
+      });
+    });
+  </script>
+</body>
+</html>

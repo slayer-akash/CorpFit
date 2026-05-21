@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CorpFit — Checkout</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://images.unsplash.com">
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-mount"></span>
+      <span class="nav-logo-text">CORP<span>FIT</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="catalogue.html">Catalogue</a></li>
+      <li><a href="index.html#story">Heritage</a></li>
+      <li><a href="index.html#craft">Craft</a></li>
+    </ul>
+    <a href="checkout.html" class="nav-cart active">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/>
+        <path d="M6 6L4 2H2"/>
+      </svg>
+      Checkout
+      <span class="cart-count">0</span>
+    </a>
+  </nav>
+
+  <section class="checkout-wrap">
+    <div class="checkout-head" data-reveal>
+      <div class="section-eyebrow">The Final Step</div>
+      <h1>Confirm Your <em style="font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--gold);">Order</em></h1>
+    </div>
+
+    <div class="checkout-grid" id="checkoutGrid">
+
+      <div class="checkout-section" data-reveal="left">
+        <h3>Client Details</h3>
+        <p class="checkout-section-sub">Complete your details to confirm the order.</p>
+
+        <form id="orderForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="custName" required placeholder="e.g. Aarav Krishnan">
+            </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" id="custEmail" required placeholder="you@company.com">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" id="custPhone" required placeholder="+91">
+            </div>
+            <div class="form-group">
+              <label>Company (optional)</label>
+              <input type="text" id="custCompany" placeholder="Your firm">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full">
+              <label>Shipping Address</label>
+              <input type="text" id="custAddress" required placeholder="Street, building">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" id="custCity" required>
+            </div>
+            <div class="form-group">
+              <label>Postal Code</label>
+              <input type="text" id="custPin" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>State</label>
+              <input type="text" id="custState" required>
+            </div>
+            <div class="form-group">
+              <label>Country</label>
+              <input type="text" id="custCountry" value="India" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full">
+              <label>Tailoring Notes (optional)</label>
+              <textarea id="custNotes" placeholder="Sleeve length, monogram, fitting preferences…"></textarea>
+            </div>
+          </div>
+
+          <h3 style="margin-top: 40px;">Payment Method</h3>
+          <p class="checkout-section-sub">Choose your preferred mode of payment.</p>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Method</label>
+              <select id="payMethod">
+                <option value="Credit / Debit Card">Credit / Debit Card</option>
+                <option value="Net Banking">Net Banking</option>
+                <option value="UPI">UPI</option>
+                <option value="Cash on Delivery">Cash on Delivery</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Card / UPI ID</label>
+              <input type="text" id="payDetail" placeholder="•••• •••• •••• ••••">
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div data-reveal="right">
+        <div class="checkout-section">
+          <h3>Your Atelier</h3>
+          <p class="checkout-section-sub">Review every piece before confirming.</p>
+
+          <div id="cartItems"></div>
+
+          <div class="totals" id="totals"></div>
+
+          <button type="button" class="place-order" id="placeOrderBtn">
+            <span>Confirm Order →</span>
+          </button>
+
+          <p style="text-align: center; margin-top: 16px; font-size: 11px; letter-spacing: 2px; color: var(--grey-soft); text-transform: uppercase;">
+            Secure · Hand-Finished · Concierge Delivery
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="success-overlay" id="successOverlay">
+    <div class="success-card">
+      <div class="checkmark">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M5 12l5 5L20 7"/>
+        </svg>
+      </div>
+      <h2>Order <em>Placed.</em></h2>
+      <p>Your atelier order has been recorded. Our concierge will be in touch shortly to confirm delivery and any tailoring details.</p>
+      <div class="order-id" id="orderId"></div>
+      <a href="index.html">Return to Atelier</a>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    function renderCheckoutItems() {
+      const cart = getCart();
+      const container = document.getElementById('cartItems');
+      const totalsBox = document.getElementById('totals');
+      const placeBtn = document.getElementById('placeOrderBtn');
+
+      if (cart.length === 0) {
+        container.innerHTML = `
+          <div class="empty-cart">
+            <p>Your atelier is empty.</p>
+            <a href="catalogue.html">Browse the Collection</a>
+          </div>`;
+        totalsBox.innerHTML = '';
+        placeBtn.style.display = 'none';
+        return;
+      }
+
+      placeBtn.style.display = 'block';
+      container.innerHTML = cart.map((item, idx) => {
+        const p = PRODUCTS.find(x => x.id === item.id);
+        if (!p) return '';
+        return `
+          <div class="cart-item" style="animation-delay: ${idx * 80}ms">
+            <div class="cart-thumb"><img src="${p.img}" alt="${p.name}" loading="lazy"></div>
+            <div class="cart-item-info">
+              <h4>${p.name}</h4>
+              <div class="cart-item-cat">${p.type} · ${p.cat === 'men' ? 'For Him' : 'For Her'}</div>
+              <div class="cart-item-meta">${p.fabric} · ${p.fit} fit · Size ${item.size}</div>
+              <div class="qty-control" style="margin-top:8px;">
+                <button onclick="updateQty('${p.id}','${item.size}',-1)">−</button>
+                <span>${item.qty}</span>
+                <button onclick="updateQty('${p.id}','${item.size}',1)">+</button>
+              </div>
+            </div>
+            <div class="cart-item-actions">
+              <div class="cart-item-price">${formatPrice(p.price * item.qty)}</div>
+              <button class="remove-btn" onclick="removeFromCart('${p.id}','${item.size}')">Remove</button>
+            </div>
+          </div>`;
+      }).join('');
+
+      const subtotal = cartTotal();
+      const shipping = subtotal > 20000 ? 0 : 800;
+      const gst = Math.round(subtotal * 0.18);
+      const grand = subtotal + shipping + gst;
+
+      totalsBox.innerHTML = `
+        <div class="total-row"><span>Subtotal</span><span>${formatPrice(subtotal)}</span></div>
+        <div class="total-row"><span>Shipping ${shipping === 0 ? '(Complimentary)' : ''}</span><span>${shipping === 0 ? 'Free' : formatPrice(shipping)}</span></div>
+        <div class="total-row"><span>GST (18%)</span><span>${formatPrice(gst)}</span></div>
+        <div class="total-row grand"><span>Total</span><span>${formatPrice(grand)}</span></div>
+      `;
+
+      if (window.rebindImageFallbacks) window.rebindImageFallbacks();
+    }
+
+    document.getElementById('placeOrderBtn').addEventListener('click', () => {
+      const required = ['custName','custEmail','custPhone','custAddress','custCity','custPin','custState','custCountry'];
+      for (const id of required) {
+        const f = document.getElementById(id);
+        if (!f.value.trim()) {
+          f.focus();
+          showToast('Detail required', 'Please complete every field marked.');
+          f.style.borderColor = 'var(--gold)';
+          setTimeout(() => f.style.borderColor = '', 2000);
+          return;
+        }
+      }
+
+      if (getCart().length === 0) {
+        showToast('Atelier empty', 'Add at least one piece first.');
+        return;
+      }
+
+      const orderId = 'CF-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(Math.random() * 999);
+      document.getElementById('orderId').textContent = 'ORDER ID  ·  ' + orderId;
+      document.getElementById('successOverlay').classList.add('show');
+      saveCart([]);
+    });
+
+    renderCheckoutItems();
+  </script>
+</body>
+</html>
